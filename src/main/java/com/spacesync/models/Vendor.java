@@ -1,0 +1,71 @@
+package com.spacesync.models;
+
+import com.spacesync.models.keys.*;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
+@Entity
+@Table(name = "Vendor")
+public class Vendor {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Vendor_ID") private Integer vendorId;
+    @Column(name = "Business_Name") private String businessName;
+    @Column(name = "Business_License") private String businessLicense;
+    @Column(name = "Contact_Email") private String contactEmail;
+    @Column(name = "Verification_Date") private LocalDateTime verificationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "Approved_By_Admin_ID")
+    private SystemAdmin approvedByAdmin;
+
+    public Integer getVendorId() {
+        return vendorId;
+    }
+
+    public void setVendorId(Integer vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getBusinessLicense() {
+        return businessLicense;
+    }
+
+    public void setBusinessLicense(String businessLicense) {
+        this.businessLicense = businessLicense;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public LocalDateTime getVerificationDate() {
+        return verificationDate;
+    }
+
+    public void setVerificationDate(LocalDateTime verificationDate) {
+        this.verificationDate = verificationDate;
+    }
+
+    public SystemAdmin getApprovedByAdmin() {
+        return approvedByAdmin;
+    }
+
+    public void setApprovedByAdmin(SystemAdmin approvedByAdmin) {
+        this.approvedByAdmin = approvedByAdmin;
+    }
+}
