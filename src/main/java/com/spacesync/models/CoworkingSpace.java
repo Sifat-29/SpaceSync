@@ -130,4 +130,5 @@ public class CoworkingSpace {
     public void setAmenities(List<Amenity> amenities) {
         this.amenities = amenities;
     }
+
 }

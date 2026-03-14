@@ -1,0 +1,30 @@
+<!--&lt;!&ndash; Inside the col-md-8 div of your loop &ndash;&gt;-->
+<!--<div class="col-md-8">-->
+<!--    <h6>Feedback</h6>-->
+
+<!--    &lt;!&ndash; Show Form ONLY if not reviewed (We will handle this logic simply for the demo) &ndash;&gt;-->
+<!--    <form th:action="@{/user/submit-review}" method="post" class="row g-2 mt-1">-->
+<!--        <input type="hidden" name="bookingId" th:value="${b.bookingId}">-->
+
+<!--        &lt;!&ndash; Logic: If the URL has ?success and this was the booking, show 'Done' &ndash;&gt;-->
+<!--        <div th:if="${param.success != null}" class="text-success fw-bold">-->
+<!--            <i class="bi bi-check-circle"></i> Review Submitted!-->
+<!--        </div>-->
+
+<!--        <div th:unless="${param.success != null}" class="row g-2">-->
+<!--            <div class="col-md-3">-->
+<!--                <select name="rating" class="form-select" required>-->
+<!--                    <option value="5">5 Stars</option>-->
+<!--                    <option value="4">4 Stars</option>-->
+<!--                    <option value="3">3 Stars</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--            <div class="col-md-7">-->
+<!--                <input name="comment" class="form-control" placeholder="Your experience..." required>-->
+<!--            </div>-->
+<!--            <div class="col-md-2">-->
+<!--                <button class="btn btn-primary w-100">Submit</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </form>-->
+<!--</div>-->
