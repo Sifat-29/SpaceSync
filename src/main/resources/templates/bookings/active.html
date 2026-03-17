@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">My Confirmed Bookings</h2>
+        <a href="/groups" class="btn btn-outline-primary">Back to Groups</a>
+    </div>
+
+    <div th:if="${param.cancelled}" class="alert alert-warning">Booking has been cancelled and logged in the system.</div>
+    <div th:if="${#lists.isEmpty(bookings)}" class="alert alert-info py-4 text-center">
+        <p class="mb-0">No active bookings found. Go to <b>My Groups</b> to start a search.</p>
+    </div>
+
+    <div class="row">
+        <div th:each="b : ${bookings}" class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <span class="fw-bold" th:text="${b.group.groupName}">Group</span>
+                    <span class="badge bg-light text-primary">Confirmed</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-dark fw-bold" th:text="${b.space.name}">Space Name</h5>
+                    <p class="mb-1 text-muted">
+                        📅 <span th:text="${#temporals.format(b.startTime, 'dd MMM yyyy')}"></span>
+                    </p>
+                    <p class="mb-3 text-muted">
+                        ⏰ <span th:text="${#temporals.format(b.startTime, 'HH:mm')}"></span> -
+                        <span th:text="${#temporals.format(b.endTime, 'HH:mm')}"></span>
+                    </p>
+
+                    <div class="d-grid">
+                        <form th:action="@{/bookings/{id}/cancel(id=${b.bookingId})}" method="post">
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                    onclick="return confirm('WARNING: Cancelling this booking will be recorded in the Audit Log. Proceed?')">
+                                ❌ Cancel Booking
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

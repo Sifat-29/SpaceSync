@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/components :: head-content}"></th:block>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>#pickerMap { height: 350px; width: 100%; border-radius: 8px; cursor: crosshair; }</style>
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white p-3">
+                    <h4 class="mb-0">✏️ Edit Space: <span th:text="${space.name}"></span></h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/vendor/space/update}" method="post">
+                        <!-- Hidden ID for updating -->
+                        <input type="hidden" name="spaceId" th:value="${space.spaceId}">
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Space Name</label>
+                                <input type="text" name="name" th:value="${space.name}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Street</label>
+                                <input type="text" name="street" th:value="${space.street}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">City</label>
+                                <input type="text" name="city" th:value="${space.city}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Opening Time</label>
+                                <input type="time" name="openingTime" th:value="${space.openingTime}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Closing Time</label>
+                                <input type="time" name="closingTime" th:value="${space.closingTime}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Amenities</label>
+                            <div class="row row-cols-2 row-cols-md-4 g-2">
+                                <div class="col" th:each="amenity : ${allAmenities}">
+                                    <div class="form-check">
+                                        <!-- Checkbox logic: If the space already has this amenity, check the box -->
+                                        <input class="form-check-input" type="checkbox" name="amenityIds"
+                                               th:value="${amenity.amenityId}"
+                                               th:checked="${#lists.contains(space.amenities, amenity)}">
+                                        <label class="form-check-label" th:text="${amenity.amenityName}"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Update Location on Map</label>
+                            <div id="pickerMap" class="mb-2"></div>
+                            <input type="hidden" id="lat" name="latitude" th:value="${space.latitude}">
+                            <input type="hidden" id="lng" name="longitude" th:value="${space.longitude}">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Update Listing</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script th:inline="javascript">
+    var initialLat = [[${space.latitude}]];
+    var initialLng = [[${space.longitude}]];
+
+    var map = L.map('pickerMap').setView([initialLat, initialLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var marker = L.marker([initialLat, initialLng]).addTo(map);
+
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        document.getElementById('lat').value = e.latlng.lat;
+        document.getElementById('lng').value = e.latlng.lng;
+    });
+</script>
+<div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/components :: head-content}"></th:block>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>#map { height: 350px; border-radius: 8px; cursor: crosshair; }</style>
+</head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 800px;">
+        <div class="card-body p-5">
+            <h3>My Profile</h3>
+            <hr>
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label class="text-muted small">Name</label>
+                    <p class="fs-5 fw-bold" th:text="${user.name}"></p>
+                </div>
+                <div class="col-6">
+                    <label class="text-muted small">Username</label>
+                    <p class="fs-5" th:text="${user.username}"></p>
+                </div>
+            </div>
+
+            <h5>Set Primary Work Location</h5>
+            <p class="text-muted small">Click on the map to update where you usually work from. This is used to calculate team fairness.</p>
+            <div id="map" class="mb-3 border"></div>
+
+            <form th:action="@{/user/profile/update-location}" method="post">
+                <input type="hidden" id="lat" name="lat" th:value="${user.latitude}">
+                <input type="hidden" id="lng" name="lng" th:value="${user.longitude}">
+                <button type="submit" class="btn btn-primary btn-lg w-100">Save New Location</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script th:inline="javascript">
+    var startLat = [[${user.latitude}]] || 28.6139;
+    var startLng = [[${user.longitude}]] || 77.2090;
+
+    var map = L.map('map').setView([startLat, startLng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var marker = L.marker([startLat, startLng]).addTo(map);
+
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        document.getElementById('lat').value = e.latlng.lat;
+        document.getElementById('lng').value = e.latlng.lng;
+    });
+</script>
+</body>
+</html>

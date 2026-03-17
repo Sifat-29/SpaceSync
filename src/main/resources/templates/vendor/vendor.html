@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body>
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5 text-center">
+    <div class="alert alert-warning p-5 shadow">
+        <h2>⏳ Account Under Review</h2>
+        <p class="lead">Your vendor account is pending verification by a System Admin. You will be able to add spaces once approved.</p>
+        <a href="/logout" class="btn btn-outline-danger">Log Out</a>
+    </div>
+</div>
+</body>
+</html>

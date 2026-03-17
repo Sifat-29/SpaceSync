@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5">
+    <h2 class="mb-4">📋 Pending Verifications</h2>
+
+    <!-- Vendor Table -->
+    <div class="card shadow mb-5">
+        <div class="card-header bg-dark text-white"><h5>New Vendor Applications</h5></div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead><tr><th>Business Name</th><th>License</th><th>Email</th><th>Action</th></tr></thead>
+                <tbody>
+                <tr th:each="v : ${pendingVendors}">
+                    <td th:text="${v.businessName}"></td>
+                    <td th:text="${v.businessLicense}"></td>
+                    <td th:text="${v.contactEmail}"></td>
+                    <td>
+                        <form th:action="@{/admin/verify/vendor/{id}(id=${v.vendorId})}" method="post">
+                            <button class="btn btn-sm btn-success">Approve Vendor</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Space Table -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white"><h5>Pending Coworking Spaces</h5></div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead><tr><th>Space Name</th><th>City</th><th>Street</th><th>Action</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${pendingSpaces}">
+                    <td th:text="${s.name}"></td>
+                    <td th:text="${s.city}"></td>
+                    <td th:text="${s.street}"></td>
+                    <td>
+                        <form th:action="@{/admin/verify/space/{id}(id=${s.spaceId})}" method="post">
+                            <button class="btn btn-sm btn-primary">Approve Listing</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

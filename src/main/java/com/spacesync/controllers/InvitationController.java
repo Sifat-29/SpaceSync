@@ -36,29 +36,20 @@ public class InvitationController {
     }
 
     // Accept or Reject the Invite
-    @PostMapping("/{inviteId}/respond")
-    public String respondToInvite(@PathVariable Integer inviteId, @RequestParam String action) {
-        // Fetch the invitation from the DB
-        Invitation invite = invitationRepository.findById(inviteId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid invite Id"));
-        
-        if ("ACCEPT".equals(action)) {
+    @PostMapping("/{id}/respond")
+    public String respond(@PathVariable Integer id, @RequestParam String action, HttpSession session) {
+        Invitation invite = invitationRepository.findById(id).get();
+        if (action.equals("ACCEPT")) {
             invite.setStatus("Accepted");
-            
-            // Add user to Group_Membership using Person C's Integer IDs
             GroupMembership gm = new GroupMembership();
             gm.setGroupId(invite.getGroup().getGroupId());
             gm.setUserId(invite.getRecipient().getUserId());
             gm.setJoinedAt(LocalDateTime.now());
             membershipRepository.save(gm);
-            
-        } else if ("REJECT".equals(action)) {
+        } else {
             invite.setStatus("Rejected");
         }
-        
-        // Save the updated status back to the database
         invitationRepository.save(invite);
-        
-        return "redirect:/invites/my?success=true";
+        return "redirect:/invites/my";
     }
 }

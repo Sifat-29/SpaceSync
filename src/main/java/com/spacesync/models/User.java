@@ -15,6 +15,9 @@ public class User {
     @Column(name = "Username", unique = true, nullable = false)
     private String username;
 
+    @Column(name = "Password", nullable = false)
+    private String password;
+
     @Column(name = "Name", nullable = false)
     private String name;
 
@@ -74,5 +77,13 @@ public class User {
 
     public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

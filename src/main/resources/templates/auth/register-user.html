@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <h3 class="mb-4">Register as User</h3>
+                <form th:action="@{/register/user}" method="post">
+                    <input type="text" name="name" class="form-control mb-3" placeholder="Full Name" required>
+                    <input type="text" name="username" class="form-control mb-3" placeholder="Username" required>
+                    <input type="text" name="phone" pattern="\d{10}" title="Please enter 10 digits" class="form-control mb-3" required>
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
+
+                    <!-- Dummy coords for now, Person A can add the Leaflet clicker later -->
+                    <label class="text-muted small">Work Coordinates (Lat/Lng):</label>
+                    <div class="d-flex gap-2 mb-4">
+                        <input type="number" step="any" name="lat" class="form-control" placeholder="Latitude (e.g. 28.61)" required>
+                        <input type="number" step="any" name="lng" class="form-control" placeholder="Longitude (e.g. 77.20)" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                </form>
+                <a href="/login" class="d-block text-center mt-3">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

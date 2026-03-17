@@ -1,38 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <!-- Injects the Bootstrap CSS -->
-    <th:block th:replace="~{fragments/components :: head-content}"></th:block>
-</head>
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
 <body>
-
-<!-- Injects the Navigation Bar -->
 <div th:replace="~{fragments/components :: navbar}"></div>
-
-<!-- Main Page Content -->
 <div class="container mt-5">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h1 class="display-4 fw-bold">Fairness-First Co-working</h1>
-            <p class="lead mt-3">
-                Optimize workspace bookings for your entire team. SpaceSync minimizes total travel distance and ensures commute equity using our advanced Fairness Algorithm.
-            </p>
-            <div class="mt-4">
-                <a href="/search" class="btn btn-primary btn-lg px-4 me-2">Start Discovery</a>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <!-- Placeholder for a cool graphic or map preview -->
-            <div class="p-5 bg-white border rounded-3 shadow text-center">
-                <h3 class="text-muted">🗺️ Interactive Map Area</h3>
-                <p class="text-muted mb-0">(Person A will implement Leaflet.js here)</p>
-            </div>
-        </div>
+    <div class="p-5 mb-4 bg-light rounded-3 shadow">
+        <h1 class="display-5 fw-bold">Welcome, <span th:text="${session.userName}">User</span>!</h1>
+        <p class="col-md-8 fs-4">Ready to find the fairest workspace for your team?</p>
+        <a href="/groups" class="btn btn-primary btn-lg">View My Groups</a>
     </div>
 </div>
-
-<!-- Injects the Bootstrap JS -->
-<div th:replace="~{fragments/components :: scripts}"></div>
-
 </body>
 </html>

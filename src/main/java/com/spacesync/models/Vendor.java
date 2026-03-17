@@ -16,6 +16,9 @@ public class Vendor {
     @Column(name = "Business_License") private String businessLicense;
     @Column(name = "Contact_Email") private String contactEmail;
     @Column(name = "Verification_Date") private LocalDateTime verificationDate;
+    @Column(name = "Username", unique = true) private String username;
+    @Column(name = "Password", nullable = false) private String password;
+    @Column(name = "Approval_Status") private String approvalStatus;
 
     @ManyToOne
     @JoinColumn(name = "Approved_By_Admin_ID")
@@ -68,4 +71,24 @@ public class Vendor {
     public void setApprovedByAdmin(SystemAdmin approvedByAdmin) {
         this.approvedByAdmin = approvedByAdmin;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getApprovalStatus() { return approvalStatus; }
+
+    public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
 }

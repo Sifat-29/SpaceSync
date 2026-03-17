@@ -9,6 +9,7 @@ public class SystemAdmin {
     @Column(name = "Admin_ID") private Integer adminId;
     @Column(name = "Username") private String username;
     @Column(name = "Role_Level") private String roleLevel;
+    @Column(name = "Password", nullable = false) private String password;
 
     public Integer getAdminId() {
         return adminId;
@@ -32,5 +33,13 @@ public class SystemAdmin {
 
     public void setRoleLevel(String roleLevel) {
         this.roleLevel = roleLevel;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

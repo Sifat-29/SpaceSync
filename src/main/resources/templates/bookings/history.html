@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">📜 Booking History</h2>
+    <div th:if="${param.reviewed}" class="alert alert-success">Thank you for your feedback!</div>
+
+    <div th:each="b : ${bookings}" class="card shadow-sm mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1" th:text="${b.space.name}"></h5>
+                <small class="text-muted" th:text="${#temporals.format(b.startTime, 'dd MMM yyyy')}"></small>
+            </div>
+
+            <!-- Button to trigger Review Modal -->
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                    th:data-bs-target="'#reviewModal' + ${b.bookingId}">
+                Leave a Review
+            </button>
+        </div>
+
+        <!-- Review Modal -->
+        <div class="modal fade" th:id="'reviewModal' + ${b.bookingId}" tabindex="-1">
+            <div class="modal-dialog">
+                <form th:action="@{/bookings/review}" method="post" class="modal-content">
+                    <div class="modal-header"><h5>Rate your experience</h5></div>
+                    <div class="modal-body">
+                        <input type="hidden" name="bookingId" th:value="${b.bookingId}">
+                        <div class="mb-3">
+                            <label class="form-label">Rating (1-5)</label>
+                            <input type="number" name="rating" class="form-control" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comment</label>
+                            <textarea name="comment" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

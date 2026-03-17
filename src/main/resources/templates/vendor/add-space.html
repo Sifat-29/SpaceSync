@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/components :: head-content}"></th:block>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #pickerMap { height: 350px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; cursor: crosshair; }
+        .amenity-card { border: 1px solid #ddd; padding: 10px; border-radius: 5px; transition: 0.3s; }
+        .amenity-card:hover { background-color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div th:replace="~{fragments/components :: navbar}"></div>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-dark text-white p-3">
+                    <h4 class="mb-0">🏢 Register New Coworking Space</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/vendor/add-space}" method="post">
+
+                        <!-- Section 1: Basic Info -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Space Name</label>
+                                <input type="text" name="name" class="form-control" placeholder="e.g. Innovation Hub CP" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Street Address</label>
+                                <input type="text" name="street" class="form-control" placeholder="Plot No, Building Name" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">City</label>
+                                <input type="text" name="city" class="form-control" placeholder="Delhi" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Zip Code</label>
+                                <input type="text" name="zip" class="form-control" placeholder="110001" required>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Operating Hours -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Opening Time</label>
+                                <input type="time" name="openingTime" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Closing Time</label>
+                                <input type="time" name="closingTime" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4 bg-white p-3 rounded border">
+                            <div class="col-12"><h6 class="text-primary fw-bold">Default Inventory Setup</h6></div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Primary Meeting Room Hourly Rate (₹)</label>
+                                <input type="number" name="roomRate" class="form-control" placeholder="e.g. 500" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Primary Meeting Room Capacity</label>
+                                <input type="number" name="roomCapacity" class="form-control" placeholder="e.g. 10" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold">Open Desk Rate per Person per Day (₹)</label>
+                                <input type="number" name="deskRate" class="form-control" placeholder="e.g. 200" required>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Amenities (M:N Checklist) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Available Amenities</label>
+                            <div class="row row-cols-2 row-cols-md-4 g-2">
+                                <div class="col" th:each="amenity : ${allAmenities}">
+                                    <div class="amenity-card">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="amenityIds"
+                                                   th:value="${amenity.amenityId}" th:id="'am' + ${amenity.amenityId}">
+                                            <label class="form-check-label small" th:for="'am' + ${amenity.amenityId}"
+                                                   th:text="${amenity.amenityName}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Map Location -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Pin Location on Map</label>
+                            <p class="text-muted small mb-2">Click precisely where your building is located. Coordinates will be captured automatically.</p>
+                            <div id="pickerMap" class="shadow-sm"></div>
+
+                            <!-- Hidden Fields for Lat/Lng -->
+                            <input type="hidden" id="lat" name="lat" required>
+                            <input type="hidden" id="lng" name="lng" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Submit Listing for Admin Approval</button>
+                            <a href="/vendor/dashboard" class="btn btn-link text-muted">Cancel and go back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/components :: scripts}"></div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Initialize Map centered on Delhi-NCR
+    var map = L.map('pickerMap').setView([28.6139, 77.2090], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var marker;
+
+    // Map click event
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        // Update or Create Marker
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+
+        // Update Hidden Inputs
+        document.getElementById('lat').value = lat;
+        document.getElementById('lng').value = lng;
+    });
+</script>
+</body>
+</html>

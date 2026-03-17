@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5">
+    <h2 class="mb-4">🔎 System Audit Log</h2>
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead class="table-dark">
+                <tr><th>Booking ID</th><th>Previous Status</th><th>New Status</th><th>Timestamp</th><th>Actor</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td th:text="${log.bookingId}"></td>
+                    <td><span class="badge bg-secondary" th:text="${log.oldStatus}"></span></td>
+                    <td><span class="badge bg-primary" th:text="${log.newStatus}"></span></td>
+                    <td th:text="${#temporals.format(log.timestamp, 'dd-MMM HH:mm:ss')}"></td>
+                    <td th:text="${log.changedByUser != null ? log.changedByUser.name : 'System'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

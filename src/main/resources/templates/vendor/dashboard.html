@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
+<body class="bg-light">
+<div th:replace="~{fragments/components :: navbar}"></div>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🏬 Vendor Dashboard</h1>
+        <a href="/vendor/add-space" class="btn btn-primary">➕ Register New Space</a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow p-3">
+                <h5>Total Earnings</h5>
+                <h2 th:text="'₹ ' + ${totalRevenue}">₹ 0.00</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white"><h5>My Properties</h5></div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead><tr><th>Property Name</th><th>City</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${mySpaces}">
+                    <td th:text="${s.name}"></td>
+                    <td th:text="${s.city}"></td>
+                    <td><span class="badge" th:classappend="${s.approvalStatus == 'Approved' ? 'bg-success' : 'bg-warning'}" th:text="${s.approvalStatus}"></span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/vendor/space/edit/{id}(id=${s.spaceId})}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form th:action="@{/vendor/space/delete/{id}(id=${s.spaceId})}" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this listing?')">Remove</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

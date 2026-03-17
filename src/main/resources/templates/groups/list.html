@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>My Groups | SpaceSync</title>
-    <!-- Assuming Person C set up bootstrap in components -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
 <body class="bg-light">
+<!-- Single Navbar Inclusion -->
+<div th:replace="~{fragments/components :: navbar}"></div>
 
-<div class="container mt-5">
-    <h2>SpaceSync: Team Coordination</h2>
-    
-    <!-- Create Group Card -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">My Groups</h2>
+        <!-- Create Group Button -->
+        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createGroupForm">+ Create New Team</button>
+    </div>
+
+    <div class="collapse mb-4" id="createGroupForm">
+        <div class="card card-body shadow-sm">
             <form th:action="@{/groups/create}" method="post" class="d-flex gap-2">
-                <input type="text" name="groupName" class="form-control" placeholder="New Team Name" required>
-                <button type="submit" class="btn btn-primary">Create Team</button>
+                <input type="text" name="groupName" class="form-control" placeholder="Enter Team Name" required>
+                <button type="submit" class="btn btn-success">Create</button>
             </form>
         </div>
     </div>
 
-    <!-- My Groups List -->
-    <div class="row">
-        <div class="col-md-12">
-            <h4>Groups I Manage</h4>
-            <div class="list-group">
-                <div th:each="g : ${myGroups}" class="list-group-item d-flex justify-content-between align-items-center">
-                    <span th:text="${g.groupName}" class="fw-bold"></span>
-                    
-                    <div>
-                        <!-- Quick Invite simulation for the Demo -->
-                        <form th:action="@{/groups/{gid}/invite/2(gid=${g.groupId})}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Invite Priya (User 2)</button>
-                        </form>
-                        
-                        <!-- Link to the Map Search -->
-                        <a th:href="@{/search/{id}(id=${g.groupId})}" class="btn btn-sm btn-success">Find Fair Workspace</a>
-                    </div>
-                </div>
+    <!-- Section 1: Groups I Manage -->
+    <h4 class="mb-3 text-secondary">Teams I Manage</h4>
+    <div class="list-group shadow-sm mb-5">
+        <div th:each="g : ${adminGroups}" class="list-group-item d-flex justify-content-between align-items-center p-3">
+            <span th:text="${g.groupName}" class="fs-5 fw-bold"></span>
+            <a th:href="@{/groups/{id}(id=${g.groupId})}" class="btn btn-primary btn-sm px-4">Manage Team</a>
+        </div>
+        <div th:if="${#lists.isEmpty(adminGroups)}" class="list-group-item text-muted text-center">You haven't created any groups yet.</div>
+    </div>
+
+    <!-- Section 2: Teams I've Joined -->
+    <h4 class="mb-3 text-secondary">Teams I've Joined</h4>
+    <div class="list-group shadow-sm">
+        <div th:each="g : ${joinedGroups}" class="list-group-item d-flex justify-content-between align-items-center p-3">
+            <div>
+                <span th:text="${g.groupName}" class="fs-5"></span>
+                <small class="text-muted d-block" th:text="'Admin: ' + ${g.admin.name}"></small>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/groups/{id}(id=${g.groupId})}" class="btn btn-outline-secondary btn-sm">View Members</a>
+                <form th:action="@{/groups/{id}/leave(id=${g.groupId})}" method="post">
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Leave this group?')">Leave</button>
+                </form>
             </div>
         </div>
+        <div th:if="${#lists.isEmpty(joinedGroups)}" class="list-group-item text-muted text-center">You aren't a member of any other groups.</div>
     </div>
 </div>
-
+<div th:replace="~{fragments/components :: scripts}"></div>
 </body>
 </html>
