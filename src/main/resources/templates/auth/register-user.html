@@ -1,3 +1,34 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>-->
+<!--<body class="bg-light">-->
+<!--<div class="container mt-5">-->
+<!--    <div class="row justify-content-center">-->
+<!--        <div class="col-md-6">-->
+<!--            <div class="card shadow-sm p-4">-->
+<!--                <h3 class="mb-4">Register as User</h3>-->
+<!--                <form th:action="@{/register/user}" method="post">-->
+<!--                    <input type="text" name="name" class="form-control mb-3" placeholder="Full Name" required>-->
+<!--                    <input type="text" name="username" class="form-control mb-3" placeholder="Username" required>-->
+<!--                    <input type="text" name="phone" pattern="\d{10}" title="Please enter 10 digits" class="form-control mb-3" required>-->
+<!--                    <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>-->
+
+<!--                    &lt;!&ndash; Dummy coords for now, Person A can add the Leaflet clicker later &ndash;&gt;-->
+<!--                    <label class="text-muted small">Work Coordinates (Lat/Lng):</label>-->
+<!--                    <div class="d-flex gap-2 mb-4">-->
+<!--                        <input type="number" step="any" name="lat" class="form-control" placeholder="Latitude (e.g. 28.61)" required>-->
+<!--                        <input type="number" step="any" name="lng" class="form-control" placeholder="Longitude (e.g. 77.20)" required>-->
+<!--                    </div>-->
+
+<!--                    <button type="submit" class="btn btn-primary w-100">Create Account</button>-->
+<!--                </form>-->
+<!--                <a href="/login" class="d-block text-center mt-3">Cancel</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head><th:block th:replace="~{fragments/components :: head-content}"></th:block></head>
@@ -7,13 +38,25 @@
         <div class="col-md-6">
             <div class="card shadow-sm p-4">
                 <h3 class="mb-4">Register as User</h3>
-                <form th:action="@{/register/user}" method="post">
-                    <input type="text" name="name" class="form-control mb-3" placeholder="Full Name" required>
-                    <input type="text" name="username" class="form-control mb-3" placeholder="Username" required>
-                    <input type="text" name="phone" pattern="\d{10}" title="Please enter 10 digits" class="form-control mb-3" required>
-                    <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
 
-                    <!-- Dummy coords for now, Person A can add the Leaflet clicker later -->
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                <form th:action="@{/register/user}" method="post">
+                    <label class="form-label mb-1 small text-muted">Full Name</label>
+                    <input type="text" name="name" class="form-control mb-3" maxlength="100" placeholder="e.g. John Doe" required>
+
+                    <label class="form-label mb-1 small text-muted">Username</label>
+                    <input type="text" name="username" class="form-control mb-3" maxlength="50" placeholder="e.g. johndoe123" required>
+
+                    <label class="form-label mb-1 fw-bold text-primary">Phone Number (10 digits)</label>
+                    <input type="text" name="phone" pattern="\d{10}" maxlength="10" title="Please enter exactly 10 digits" class="form-control mb-3" placeholder="e.g. 9876543210" required>
+
+                    <label class="form-label mb-1 small text-muted">Password</label>
+                    <div class="position-relative mb-3">
+                        <input type="password" name="password" id="regPassword" class="form-control" placeholder="Create a password" required>
+                        <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y bg-transparent border-0" id="toggleRegPassword">👁️</button>
+                    </div>
+
                     <label class="text-muted small">Work Coordinates (Lat/Lng):</label>
                     <div class="d-flex gap-2 mb-4">
                         <input type="number" step="any" name="lat" class="form-control" placeholder="Latitude (e.g. 28.61)" required>
@@ -27,5 +70,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('toggleRegPassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('regPassword');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            this.textContent = '👁️';
+        }
+    });
+</script>
 </body>
 </html>

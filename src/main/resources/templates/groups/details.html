@@ -1,3 +1,552 @@
+<!--&lt;!&ndash;&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<html xmlns:th="http://www.thymeleaf.org">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<head>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <th:block th:replace="~{fragments/components :: head-content}"></th:block>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</head>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;<body class="bg-light">&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;<div th:replace="~{fragments/components :: navbar}"></div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;<div class="container mt-5 mb-5">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    <div class="row">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        &lt;!&ndash; Left Column: Group Info & Booking Criteria &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-8">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <div class="d-flex align-items-center mb-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <h1 class="fw-bold me-3" th:text="${group.groupName}">Group Name</h1>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <span class="badge bg-primary fs-6">Active Team</span>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;            <p class="text-muted">Created on: <span th:text="${#temporals.format(group.createdAt, 'dd MMMM yyyy')}"></span></p>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;            &lt;!&ndash; Booking Criteria Form &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <div class="card border-0 shadow-sm mb-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="card-header bg-white py-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <h5 class="mb-0">📍 Workspace Discovery</h5>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="card-body p-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <form th:if="${members.size() >= 2}" th:action="@{/search/{id}(id=${group.groupId})}" method="get" id="searchForm">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <div class="row g-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            &lt;!&ndash; 1. Select Type First &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <div class="col-md-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <label class="small fw-bold">Booking Type</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <select name="type" id="bookingType" class="form-select" onchange="toggleFormFields()" required>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <option value="ROOM">Private Meeting Room (Hourly)</option>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <option value="DESK">Open Desk Area (Daily)</option>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                </select>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                            &lt;!&ndash; 2. Room Specific Fields (Single Date + Discrete Hours) &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <div class="col-md-8" id="roomFields">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <div class="row g-2">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <label class="small fw-bold">Date</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <input type="date" name="roomDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <label class="small fw-bold">Start Hour</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <select name="startHour" class="form-select">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                            <option th:each="h : ${#numbers.sequence(0, 23)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        </select>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <label class="small fw-bold">End Hour</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <select name="endHour" class="form-select">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                            <option th:each="h : ${#numbers.sequence(1, 24)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        </select>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                            &lt;!&ndash; 3. Desk Specific Fields (Date Range) &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <div class="col-md-8 d-none" id="deskFields">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <div class="row g-2">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <div class="col-md-6">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <label class="small fw-bold">Start Date</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <input type="date" name="startDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    <div class="col-md-6">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <label class="small fw-bold">End Date (Inclusive)</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                        <input type="date" name="endDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                        <div class="col-12 mt-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Search Available Spaces</button>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    </form>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;            <script>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                function toggleFormFields() {&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    const type = document.getElementById('bookingType').value;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    const roomFields = document.getElementById('roomFields');&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    const deskFields = document.getElementById('deskFields');&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                    if (type === 'ROOM') {&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        roomFields.classList.remove('d-none');&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        deskFields.classList.add('d-none');&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    } else {&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        roomFields.classList.add('d-none');&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        deskFields.classList.remove('d-none');&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    }&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                }&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            </script>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;            &lt;!&ndash; Member List &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <div class="card border-0 shadow-sm">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="card-header bg-white py-3"><h5 class="mb-0">Team Members</h5></div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="table-responsive">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <table class="table align-middle mb-0">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <thead class="table-light">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <tr>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <th>Name</th>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <th>Username</th>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <th>Role</th>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </tr>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </thead>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <tbody>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <tr th:each="u : ${members}">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <td th:text="${u.name}" class="fw-bold"></td>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <td th:text="${u.username}"></td>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <td>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <span th:if="${u.userId == group.admin.userId}" class="badge bg-info text-dark">Group Admin</span>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <span th:unless="${u.userId == group.admin.userId}" class="badge bg-light text-dark border">Member</span>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            </td>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </tr>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </tbody>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    </table>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;        &lt;!&ndash; Right Column: Invitation Panel &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-4">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="card-header bg-dark text-white py-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <h5 class="mb-0">Add to Team</h5>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <div class="card-body">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    &lt;!&ndash; Status Messages &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <div th:if="${param.success}" class="alert alert-success small">Invite sent successfully!</div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <div th:if="${param.error == 'user_not_found'}" class="alert alert-danger small">User not found. Check username/phone.</div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                    <form th:action="@{/groups/{id}/invite(id=${group.groupId})}" method="post">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <div class="mb-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <label class="form-label small fw-bold">Username or Phone</label>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <input type="text" name="identifier" class="form-control" placeholder="e.g. rahul_dev" required>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <button type="submit" class="btn btn-primary w-100">Send Invitation</button>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    </form>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;                    <hr>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <div class="mt-3">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <h6>Instructions:</h6>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        <ul class="text-muted small">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <li>Ask your teammate for their username.</li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <li>They will see your invite in their <b>"My Invites"</b> tab.</li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                            <li>Once they accept, the map discovery will automatically include their location.</li>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                        </ul>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</div>&ndash;&gt;&ndash;&gt;-->
+
+<!--&lt;!&ndash;&lt;!&ndash;<div th:replace="~{fragments/components :: scripts}"></div>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</body>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;</html>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
+<!--&lt;!&ndash;<html xmlns:th="http://www.thymeleaf.org">&ndash;&gt;-->
+<!--&lt;!&ndash;<head>&ndash;&gt;-->
+<!--&lt;!&ndash;    <th:block th:replace="~{fragments/components :: head-content}"></th:block>&ndash;&gt;-->
+<!--&lt;!&ndash;</head>&ndash;&gt;-->
+<!--&lt;!&ndash;<body class="bg-light">&ndash;&gt;-->
+
+<!--&lt;!&ndash;<div th:replace="~{fragments/components :: navbar}"></div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;<div class="container mt-5 mb-5">&ndash;&gt;-->
+<!--&lt;!&ndash;    <div th:if="${param.error == 'unauthorized'}" class="alert alert-danger">You do not have permission to perform this action.</div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;    <div class="row">&ndash;&gt;-->
+<!--&lt;!&ndash;        <div class="col-lg-8">&ndash;&gt;-->
+<!--&lt;!&ndash;            <div class="d-flex align-items-center mb-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                <h1 class="fw-bold me-3" th:text="${group.groupName}">Group Name</h1>&ndash;&gt;-->
+<!--&lt;!&ndash;                <span class="badge bg-primary fs-6">Active Team</span>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <p class="text-muted">Created on: <span th:text="${#temporals.format(group.createdAt, 'dd MMMM yyyy')}"></span></p>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <div class="card border-0 shadow-sm mb-4" th:if="${session.userId == group.admin.userId}">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-header bg-white py-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <h5 class="mb-0">📍 Workspace Discovery</h5>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-body p-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <form th:if="${members.size() >= 2}" th:action="@{/search/{id}(id=${group.groupId})}" method="get" id="searchForm">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="row g-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div class="col-md-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <label class="small fw-bold">Booking Type</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <select name="type" id="bookingType" class="form-select" onchange="toggleFormFields()" required>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <option value="ROOM">Private Meeting Room (Hourly)</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <option value="DESK">Open Desk Area (Daily)</option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                            <div class="col-md-8" id="roomFields">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <div class="row g-2">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <label class="small fw-bold">Date</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <input type="date" name="roomDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <label class="small fw-bold">Start Hour</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <select name="startHour" class="form-select">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <option th:each="h : ${#numbers.sequence(0, 23)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <div class="col-md-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <label class="small fw-bold">End Hour</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <select name="endHour" class="form-select">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <option th:each="h : ${#numbers.sequence(1, 24)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </select>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                            <div class="col-md-8 d-none" id="deskFields">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <div class="row g-2">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <div class="col-md-6">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <label class="small fw-bold">Start Date</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <input type="date" name="startDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <div class="col-md-6">&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <label class="small fw-bold">End Date (Inclusive)</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        <input type="date" name="endDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                        <div class="col-12 mt-4">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Search Available Spaces</button>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </form>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div th:if="${members.size() < 2}" class="alert alert-warning mb-0">&ndash;&gt;-->
+<!--&lt;!&ndash;                        You need at least one other member in your group to start searching for fair workspaces!&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <div class="card border-0 shadow-sm mb-4 bg-light" th:unless="${session.userId == group.admin.userId}">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-body p-4 text-center text-muted">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <h5 class="fw-bold">🏢 Workspace Discovery</h5>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <p class="mb-0">Only the Group Admin (<b th:text="${group.admin.name}"></b>) can search and book spaces for this team.</p>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <script>&ndash;&gt;-->
+<!--&lt;!&ndash;                function toggleFormFields() {&ndash;&gt;-->
+<!--&lt;!&ndash;                    const type = document.getElementById('bookingType').value;&ndash;&gt;-->
+<!--&lt;!&ndash;                    const roomFields = document.getElementById('roomFields');&ndash;&gt;-->
+<!--&lt;!&ndash;                    const deskFields = document.getElementById('deskFields');&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    if (type === 'ROOM') {&ndash;&gt;-->
+<!--&lt;!&ndash;                        roomFields.classList.remove('d-none');&ndash;&gt;-->
+<!--&lt;!&ndash;                        deskFields.classList.add('d-none');&ndash;&gt;-->
+<!--&lt;!&ndash;                    } else {&ndash;&gt;-->
+<!--&lt;!&ndash;                        roomFields.classList.add('d-none');&ndash;&gt;-->
+<!--&lt;!&ndash;                        deskFields.classList.remove('d-none');&ndash;&gt;-->
+<!--&lt;!&ndash;                    }&ndash;&gt;-->
+<!--&lt;!&ndash;                }&ndash;&gt;-->
+<!--&lt;!&ndash;            </script>&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <div class="card border-0 shadow-sm">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-header bg-white py-3"><h5 class="mb-0">Team Members</h5></div>&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="table-responsive">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <table class="table align-middle mb-0">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <thead class="table-light">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <th>Name</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <th>Username</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <th>Role</th>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </thead>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <tr th:each="u : ${members}">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td th:text="${u.name}" class="fw-bold"></td>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td th:text="${u.username}"></td>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <span th:if="${u.userId == group.admin.userId}" class="badge bg-info text-dark">Group Admin</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <span th:unless="${u.userId == group.admin.userId}" class="badge bg-light text-dark border">Member</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tr>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tbody>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </table>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <div class="col-lg-4" th:if="${session.userId == group.admin.userId}">&ndash;&gt;-->
+<!--&lt;!&ndash;            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-header bg-dark text-white py-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <h5 class="mb-0">Add to Team</h5>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="card-body">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div th:if="${param.success}" class="alert alert-success small">Invite sent successfully!</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div th:if="${param.error == 'user_not_found'}" class="alert alert-danger small">User not found. Check username/phone.</div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    <form th:action="@{/groups/{id}/invite(id=${group.groupId})}" method="post">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <div class="mb-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <label class="form-label small fw-bold">Username or Phone</label>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <input type="text" name="identifier" class="form-control" placeholder="e.g. rahul_dev" required>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <button type="submit" class="btn btn-primary w-100">Send Invitation</button>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </form>&ndash;&gt;-->
+
+<!--&lt;!&ndash;                    <hr>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <div class="mt-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                        <h6>Instructions:</h6>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <ul class="text-muted small">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <li>Ask your teammate for their username.</li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <li>They will see your invite in their <b>"My Invites"</b> tab.</li>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <li>Once they accept, the map discovery will automatically include their location.</li>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </ul>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+<!--&lt;!&ndash;<div th:replace="~{fragments/components :: scripts}"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;</body>&ndash;&gt;-->
+<!--&lt;!&ndash;</html>&ndash;&gt;-->
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <th:block th:replace="~{fragments/components :: head-content}"></th:block>-->
+<!--</head>-->
+<!--<body class="bg-light">-->
+
+<!--<div th:replace="~{fragments/components :: navbar}"></div>-->
+
+<!--<div class="container mt-5 mb-5">-->
+<!--    <div th:if="${param.error == 'unauthorized'}" class="alert alert-danger">You do not have permission to perform this action.</div>-->
+
+<!--    <div th:if="${param.favSuccess}" class="alert alert-success alert-dismissible fade show shadow-sm">-->
+<!--        ⭐ Successfully updated the group's favorite workspace!-->
+<!--        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>-->
+<!--    </div>-->
+
+<!--    <div class="row">-->
+<!--        <div class="col-lg-8">-->
+<!--            <div class="d-flex align-items-center mb-3">-->
+<!--                <h1 class="fw-bold me-3" th:text="${group.groupName}">Group Name</h1>-->
+<!--                <span class="badge bg-primary fs-6">Active Team</span>-->
+<!--            </div>-->
+
+<!--            <p class="text-muted">Created on: <span th:text="${#temporals.format(group.createdAt, 'dd MMMM yyyy')}"></span></p>-->
+
+<!--            <div th:if="${group.favouriteSpace != null}" class="alert alert-warning border-warning shadow-sm d-flex align-items-center mb-4">-->
+<!--                <h2 class="mb-0 me-3">⭐</h2>-->
+<!--                <div>-->
+<!--                    <h6 class="fw-bold mb-1 text-dark">Team's Favorite Workspace</h6>-->
+<!--                    <span class="text-dark fw-bold" th:text="${group.favouriteSpace.name}"></span>-->
+<!--                    <span class="text-muted small d-block" th:text="${group.favouriteSpace.street + ', ' + group.favouriteSpace.city}"></span>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="card border-0 shadow-sm mb-4" th:if="${session.userId == group.admin.userId}">-->
+<!--                <div class="card-header bg-white py-3">-->
+<!--                    <h5 class="mb-0">📍 Workspace Discovery</h5>-->
+<!--                </div>-->
+<!--                <div class="card-body p-4">-->
+<!--                    <form th:if="${members.size() >= 2}" th:action="@{/search/{id}(id=${group.groupId})}" method="get" id="searchForm" class="needs-validation" novalidate>-->
+<!--                        <div class="row g-3">-->
+<!--                            <div class="col-md-4">-->
+<!--                                <label class="small fw-bold">Booking Type</label>-->
+<!--                                <select name="type" id="bookingType" class="form-select" onchange="toggleFormFields()" required>-->
+<!--                                    <option value="ROOM">Private Meeting Room (Hourly)</option>-->
+<!--                                    <option value="DESK">Open Desk Area (Daily)</option>-->
+<!--                                </select>-->
+<!--                            </div>-->
+
+<!--                            <div class="col-md-8" id="roomFields">-->
+<!--                                <div class="row g-2">-->
+<!--                                    <div class="col-md-4">-->
+<!--                                        <label class="small fw-bold">Date</label>-->
+<!--                                        <input type="date" name="roomDate" id="roomDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>-->
+<!--                                        <div class="invalid-feedback">Required.</div>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-4">-->
+<!--                                        <label class="small fw-bold">Start Hour</label>-->
+<!--                                        <select name="startHour" class="form-select">-->
+<!--                                            <option th:each="h : ${#numbers.sequence(0, 23)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-4">-->
+<!--                                        <label class="small fw-bold">End Hour</label>-->
+<!--                                        <select name="endHour" class="form-select">-->
+<!--                                            <option th:each="h : ${#numbers.sequence(1, 24)}" th:value="${h}" th:text="${h < 10 ? '0'+h+':00' : h+':00'}"></option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            <div class="col-md-8 d-none" id="deskFields">-->
+<!--                                <div class="row g-2">-->
+<!--                                    <div class="col-md-6">-->
+<!--                                        <label class="small fw-bold">Start Date</label>-->
+<!--                                        <input type="date" name="startDate" id="startDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">-->
+<!--                                        <div class="invalid-feedback">Required.</div>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-6">-->
+<!--                                        <label class="small fw-bold">End Date</label>-->
+<!--                                        <input type="date" name="endDate" id="endDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">-->
+<!--                                        <div class="invalid-feedback">Required.</div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        <div class="col-12 mt-4">-->
+<!--                            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Search Available Spaces</button>-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                    <div th:if="${members.size() < 2}" class="alert alert-warning mb-0">-->
+<!--                        You need at least one other member in your group to start searching for fair workspaces!-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="card border-0 shadow-sm mb-4 bg-light" th:unless="${session.userId == group.admin.userId}">-->
+<!--                <div class="card-body p-4 text-center text-muted">-->
+<!--                    <h5 class="fw-bold">🏢 Workspace Discovery</h5>-->
+<!--                    <p class="mb-0">Only the Group Admin (<b th:text="${group.admin.name}"></b>) can search and book spaces for this team.</p>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <script>-->
+<!--                // FIX: Dynamically add/remove the 'required' attribute to prevent form freezing-->
+<!--                function toggleFormFields() {-->
+<!--                    const type = document.getElementById('bookingType').value;-->
+<!--                    const roomFields = document.getElementById('roomFields');-->
+<!--                    const deskFields = document.getElementById('deskFields');-->
+
+<!--                    const roomDate = document.getElementById('roomDate');-->
+<!--                    const startDate = document.getElementById('startDate');-->
+<!--                    const endDate = document.getElementById('endDate');-->
+
+<!--                    if (type === 'ROOM') {-->
+<!--                        roomFields.classList.remove('d-none');-->
+<!--                        deskFields.classList.add('d-none');-->
+
+<!--                        roomDate.setAttribute('required', 'required');-->
+<!--                        startDate.removeAttribute('required');-->
+<!--                        endDate.removeAttribute('required');-->
+<!--                    } else {-->
+<!--                        roomFields.classList.add('d-none');-->
+<!--                        deskFields.classList.remove('d-none');-->
+
+<!--                        roomDate.removeAttribute('required');-->
+<!--                        startDate.setAttribute('required', 'required');-->
+<!--                        endDate.setAttribute('required', 'required');-->
+<!--                    }-->
+<!--                }-->
+
+<!--                // Run once on load to set initial state-->
+<!--                document.addEventListener("DOMContentLoaded", function() {-->
+<!--                    if(document.getElementById('searchForm')) {-->
+<!--                        toggleFormFields();-->
+<!--                    }-->
+<!--                });-->
+
+<!--                // Bootstrap Form Validation Script-->
+<!--                (() => {-->
+<!--                    'use strict'-->
+<!--                    const forms = document.querySelectorAll('.needs-validation')-->
+<!--                    Array.from(forms).forEach(form => {-->
+<!--                        form.addEventListener('submit', event => {-->
+<!--                            if (!form.checkValidity()) {-->
+<!--                                event.preventDefault()-->
+<!--                                event.stopPropagation()-->
+<!--                            }-->
+<!--                            form.classList.add('was-validated')-->
+<!--                        }, false)-->
+<!--                    })-->
+<!--                })()-->
+<!--            </script>-->
+
+<!--            <div class="card border-0 shadow-sm">-->
+<!--                <div class="card-header bg-white py-3"><h5 class="mb-0">Team Members</h5></div>-->
+<!--                <div class="table-responsive">-->
+<!--                    <table class="table align-middle mb-0">-->
+<!--                        <thead class="table-light">-->
+<!--                        <tr>-->
+<!--                            <th>Name</th>-->
+<!--                            <th>Username</th>-->
+<!--                            <th>Role</th>-->
+<!--                        </tr>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                        <tr th:each="u : ${members}">-->
+<!--                            <td th:text="${u.name}" class="fw-bold"></td>-->
+<!--                            <td th:text="${u.username}"></td>-->
+<!--                            <td>-->
+<!--                                <span th:if="${u.userId == group.admin.userId}" class="badge bg-info text-dark">Group Admin</span>-->
+<!--                                <span th:unless="${u.userId == group.admin.userId}" class="badge bg-light text-dark border">Member</span>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div class="col-lg-4" th:if="${session.userId == group.admin.userId}">-->
+<!--            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">-->
+<!--                <div class="card-header bg-dark text-white py-3">-->
+<!--                    <h5 class="mb-0">Add to Team</h5>-->
+<!--                </div>-->
+<!--                <div class="card-body">-->
+<!--                    <div th:if="${param.success}" class="alert alert-success small">Invite sent successfully!</div>-->
+<!--                    <div th:if="${param.error == 'user_not_found'}" class="alert alert-danger small">User not found. Check username/phone.</div>-->
+
+<!--                    <form th:action="@{/groups/{id}/invite(id=${group.groupId})}" method="post">-->
+<!--                        <div class="mb-3">-->
+<!--                            <label class="form-label small fw-bold">Username or Phone</label>-->
+<!--                            <input type="text" name="identifier" class="form-control" placeholder="e.g. rahul_dev" required>-->
+<!--                        </div>-->
+<!--                        <button type="submit" class="btn btn-primary w-100">Send Invitation</button>-->
+<!--                    </form>-->
+
+<!--                    <hr>-->
+<!--                    <div class="mt-3">-->
+<!--                        <h6>Instructions:</h6>-->
+<!--                        <ul class="text-muted small">-->
+<!--                            <li>Ask your teammate for their username.</li>-->
+<!--                            <li>They will see your invite in their <b>"My Invites"</b> tab.</li>-->
+<!--                            <li>Once they accept, the map discovery will automatically include their location.</li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<div th:replace="~{fragments/components :: scripts}"></div>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -8,8 +557,14 @@
 <div th:replace="~{fragments/components :: navbar}"></div>
 
 <div class="container mt-5 mb-5">
+    <div th:if="${param.error == 'unauthorized'}" class="alert alert-danger">You do not have permission to perform this action.</div>
+
+    <div th:if="${param.favSuccess}" class="alert alert-success alert-dismissible fade show shadow-sm">
+        ⭐ Successfully updated the group's favorite workspace!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
     <div class="row">
-        <!-- Left Column: Group Info & Booking Criteria -->
         <div class="col-lg-8">
             <div class="d-flex align-items-center mb-3">
                 <h1 class="fw-bold me-3" th:text="${group.groupName}">Group Name</h1>
@@ -18,15 +573,22 @@
 
             <p class="text-muted">Created on: <span th:text="${#temporals.format(group.createdAt, 'dd MMMM yyyy')}"></span></p>
 
-            <!-- Booking Criteria Form -->
-            <div class="card border-0 shadow-sm mb-4">
+            <div th:if="${group.favouriteSpace != null}" class="alert alert-warning border-warning shadow-sm d-flex align-items-center mb-4">
+                <h2 class="mb-0 me-3">⭐</h2>
+                <div>
+                    <h6 class="fw-bold mb-1 text-dark">Team's Favorite Workspace</h6>
+                    <span class="text-dark fw-bold" th:text="${group.favouriteSpace.name}"></span>
+                    <span class="text-muted small d-block" th:text="${group.favouriteSpace.street + ', ' + group.favouriteSpace.city}"></span>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4" th:if="${session.userId == group.admin.userId}">
                 <div class="card-header bg-white py-3">
                     <h5 class="mb-0">📍 Workspace Discovery</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form th:if="${members.size() >= 2}" th:action="@{/search/{id}(id=${group.groupId})}" method="get" id="searchForm">
+                    <form th:if="${members.size() >= 2}" th:action="@{/search/{id}(id=${group.groupId})}" method="get" id="searchForm" class="needs-validation" novalidate>
                         <div class="row g-3">
-                            <!-- 1. Select Type First -->
                             <div class="col-md-4">
                                 <label class="small fw-bold">Booking Type</label>
                                 <select name="type" id="bookingType" class="form-select" onchange="toggleFormFields()" required>
@@ -35,12 +597,12 @@
                                 </select>
                             </div>
 
-                            <!-- 2. Room Specific Fields (Single Date + Discrete Hours) -->
                             <div class="col-md-8" id="roomFields">
                                 <div class="row g-2">
                                     <div class="col-md-4">
                                         <label class="small fw-bold">Date</label>
-                                        <input type="date" name="roomDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                        <input type="date" name="roomDate" id="roomDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                                        <div class="invalid-feedback">Required.</div>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="small fw-bold">Start Hour</label>
@@ -57,16 +619,17 @@
                                 </div>
                             </div>
 
-                            <!-- 3. Desk Specific Fields (Date Range) -->
                             <div class="col-md-8 d-none" id="deskFields">
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <label class="small fw-bold">Start Date</label>
-                                        <input type="date" name="startDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                        <input type="date" name="startDate" id="startDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                        <div class="invalid-feedback">Required.</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="small fw-bold">End Date (Inclusive)</label>
-                                        <input type="date" name="endDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                        <label class="small fw-bold">End Date</label>
+                                        <input type="date" name="endDate" id="endDate" class="form-control" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                                        <div class="invalid-feedback">Required.</div>
                                     </div>
                                 </div>
                             </div>
@@ -76,6 +639,16 @@
                             <button type="submit" class="btn btn-success w-100 fw-bold py-2">Search Available Spaces</button>
                         </div>
                     </form>
+                    <div th:if="${members.size() < 2}" class="alert alert-warning mb-0">
+                        You need at least one other member in your group to start searching for fair workspaces!
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4 bg-light" th:unless="${session.userId == group.admin.userId}">
+                <div class="card-body p-4 text-center text-muted">
+                    <h5 class="fw-bold">🏢 Workspace Discovery</h5>
+                    <p class="mb-0">Only the Group Admin (<b th:text="${group.admin.name}"></b>) can search and book spaces for this team.</p>
                 </div>
             </div>
 
@@ -85,17 +658,49 @@
                     const roomFields = document.getElementById('roomFields');
                     const deskFields = document.getElementById('deskFields');
 
+                    const roomDate = document.getElementById('roomDate');
+                    const startDate = document.getElementById('startDate');
+                    const endDate = document.getElementById('endDate');
+
                     if (type === 'ROOM') {
                         roomFields.classList.remove('d-none');
                         deskFields.classList.add('d-none');
+
+                        roomDate.setAttribute('required', 'required');
+                        startDate.removeAttribute('required');
+                        endDate.removeAttribute('required');
                     } else {
                         roomFields.classList.add('d-none');
                         deskFields.classList.remove('d-none');
+
+                        roomDate.removeAttribute('required');
+                        startDate.setAttribute('required', 'required');
+                        endDate.setAttribute('required', 'required');
                     }
                 }
+
+                document.addEventListener("DOMContentLoaded", function() {
+                    if(document.getElementById('searchForm')) {
+                        toggleFormFields();
+                    }
+                });
+
+                // Bootstrap Form Validation Script
+                (() => {
+                    'use strict'
+                    const forms = document.querySelectorAll('.needs-validation')
+                    Array.from(forms).forEach(form => {
+                        form.addEventListener('submit', event => {
+                            if (!form.checkValidity()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+                })()
             </script>
 
-            <!-- Member List -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3"><h5 class="mb-0">Team Members</h5></div>
                 <div class="table-responsive">
@@ -122,16 +727,16 @@
             </div>
         </div>
 
-        <!-- Right Column: Invitation Panel -->
-        <div class="col-lg-4">
+        <div class="col-lg-4" th:if="${session.userId == group.admin.userId}">
             <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
                 <div class="card-header bg-dark text-white py-3">
                     <h5 class="mb-0">Add to Team</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Status Messages -->
                     <div th:if="${param.success}" class="alert alert-success small">Invite sent successfully!</div>
                     <div th:if="${param.error == 'user_not_found'}" class="alert alert-danger small">User not found. Check username/phone.</div>
+                    <div th:if="${param.error == 'already_member'}" class="alert alert-warning small">This user is already in your team!</div>
+                    <div th:if="${param.error == 'already_invited'}" class="alert alert-warning small">An invite is already pending for this user.</div>
 
                     <form th:action="@{/groups/{id}/invite(id=${group.groupId})}" method="post">
                         <div class="mb-3">
