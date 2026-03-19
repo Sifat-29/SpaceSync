@@ -143,6 +143,7 @@ public class GroupController {
     @Autowired private InvitationRepository invitationRepository;
     @Autowired private GroupMembershipRepository membershipRepository;
     @Autowired private CoworkingSpaceRepository spaceRepository;
+    @Autowired private AmenityRepository amenityRepository; // <-- ADD THIS
 
     @GetMapping
     public String viewMyGroups(HttpSession session, Model model) {
@@ -196,6 +197,10 @@ public class GroupController {
 
         model.addAttribute("group", group);
         model.addAttribute("members", members);
+
+        // FIX: Send all amenities to the frontend for the filter checkboxes
+        model.addAttribute("allAmenities", amenityRepository.findAll());
+
         return "groups/details";
     }
 

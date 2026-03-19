@@ -217,114 +217,6 @@ public class SearchBookingController {
     @Autowired private PaymentRepository paymentRepository;
     @Autowired private ReviewRepository reviewRepository;
 
-//    @GetMapping("/{groupId}")
-//    public String searchSpaces(
-//            @PathVariable Integer groupId,
-//            @RequestParam String type,
-//            @RequestParam(required = false) String roomDate,
-//            @RequestParam(required = false) Integer startHour,
-//            @RequestParam(required = false) Integer endHour,
-//            @RequestParam(required = false) String startDate,
-//            @RequestParam(required = false) String endDate,
-//            Model model) {
-//
-//        LocalDateTime startDT;
-//        LocalDateTime endDT;
-//        long duration;
-//
-//        if ("ROOM".equals(type)) {
-//            startDT = LocalDateTime.of(LocalDate.parse(roomDate), LocalTime.of(startHour, 0));
-//            endDT = LocalDateTime.of(LocalDate.parse(roomDate), LocalTime.of(endHour == 24 ? 23 : endHour, endHour == 24 ? 59 : 0));
-//            duration = java.time.Duration.between(startDT, endDT).toHours();
-//        } else {
-//            startDT = LocalDateTime.of(LocalDate.parse(startDate), LocalTime.MIN);
-//            endDT = LocalDateTime.of(LocalDate.parse(endDate), LocalTime.MAX);
-//            duration = ChronoUnit.DAYS.between(startDT.toLocalDate(), endDT.toLocalDate()) + 1;
-//        }
-//
-//        List<Integer> memberIds = membershipRepository.findByGroupId(groupId)
-//                .stream().map(GroupMembership::getUserId).collect(Collectors.toList());
-//        List<User> members = userRepository.findAllById(memberIds);
-//        int groupSize = members.size();
-//
-//        List<CoworkingSpace> allApproved = spaceRepository.findByApprovalStatus("Approved");
-//        List<Map<String, Object>> availableResults = new ArrayList<>();
-//
-//        for (CoworkingSpace space : allApproved) {
-//            List<Map<String, Object>> inventoryList = new ArrayList<>();
-//
-//            if ("ROOM".equals(type)) {
-//                List<MeetingRoom> rooms = roomRepository.findAll().stream()
-//                        // FIX: Added null check for capacity to prevent Whitelabel NPE
-//                        .filter(r -> r.getSpaceId().equals(space.getSpaceId()) && r.getCapacity() != null && r.getCapacity() >= groupSize)
-//                        .filter(r -> isRoomAvailable(r, startDT, endDT))
-//                        .collect(Collectors.toList());
-//                for(MeetingRoom r : rooms) {
-//                    Map<String, Object> inv = new HashMap<>();
-//                    inv.put("id", r.getRoomId());
-//                    inv.put("name", r.getRoomName());
-//                    inv.put("totalPrice", r.getHourlyRate().multiply(new BigDecimal(duration)));
-//                    inventoryList.add(inv);
-//                }
-//            } else {
-//                OpenDeskArea desk = deskRepository.findAll().stream()
-//                        .filter(d -> d.getSpaceId().equals(space.getSpaceId()))
-//                        .filter(d -> isDeskAreaAvailable(d, startDT, endDT, groupSize))
-//                        .findFirst().orElse(null);
-//                if (desk != null) {
-//                    Map<String, Object> inv = new HashMap<>();
-//                    inv.put("id", desk.getAreaId());
-//                    inv.put("name", "Shared Desk Area");
-//                    inv.put("totalPrice", desk.getDailyRate().multiply(new BigDecimal(groupSize)).multiply(new BigDecimal(duration)));
-//                    inventoryList.add(inv);
-//                }
-//            }
-//
-//            if (!inventoryList.isEmpty()) {
-//                Map<String, Object> res = new HashMap<>();
-//                res.put("space", space);
-//                res.put("inventory", inventoryList);
-//
-//                List<Map<String, Object>> memberDists = new ArrayList<>();
-//                List<Double> distVals = new ArrayList<>();
-//                for (User u : members) {
-//                    // FIX: Added null safety fallbacks for latitudes/longitudes
-//                    double d = calculateHaversine(
-//                            u.getLatitude() != null ? u.getLatitude().doubleValue() : 0.0,
-//                            u.getLongitude() != null ? u.getLongitude().doubleValue() : 0.0,
-//                            space.getLatitude() != null ? space.getLatitude().doubleValue() : 0.0,
-//                            space.getLongitude() != null ? space.getLongitude().doubleValue() : 0.0);
-//                    memberDists.add(Map.of("name", u.getName(), "dist", d));
-//                    distVals.add(d);
-//                }
-//                res.put("memberDistances", memberDists);
-//                res.put("fairnessScore", calculateFairnessScore(distVals));
-//
-//                List<Review> reviews = reviewRepository.findAll().stream()
-//                        .filter(rev -> {
-//                            Booking b = bookingRepository.findById(rev.getBookingId()).orElse(null);
-//                            return b != null && b.getSpace() != null && b.getSpace().getSpaceId().equals(space.getSpaceId());
-//                        }).collect(Collectors.toList());
-//                res.put("avgRating", reviews.stream().mapToInt(Review::getRating).average().orElse(0.0));
-//                res.put("reviewCount", reviews.size());
-//                res.put("reviews", reviews);
-//
-//                availableResults.add(res);
-//            }
-//        }
-//
-//        // FIX: Sort Descending because 100 is now the best fairness score
-//        availableResults.sort((m1, m2) -> Double.compare((double) m2.get("fairnessScore"), (double) m1.get("fairnessScore")));
-//
-//        model.addAttribute("results", availableResults);
-//        model.addAttribute("groupId", groupId);
-//        model.addAttribute("startDT", startDT);
-//        model.addAttribute("endDT", endDT);
-//        model.addAttribute("type", type);
-//        model.addAttribute("members", members);
-//
-//        return "search/map-view";
-//    }
 
     @GetMapping("/{groupId}")
     public String searchSpaces(
@@ -335,6 +227,7 @@ public class SearchBookingController {
             @RequestParam(required = false) Integer endHour,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) List<Integer> amenityIds, // <-- ADDED THIS
             Model model) {
 
         LocalDateTime startDT;
@@ -351,7 +244,6 @@ public class SearchBookingController {
             duration = ChronoUnit.DAYS.between(startDT.toLocalDate(), endDT.toLocalDate()) + 1;
         }
 
-        // Fetch Group to check for Favorite Space
         TeamGroup group = teamGroupRepository.findById(groupId).orElseThrow();
         Integer favSpaceId = (group.getFavouriteSpace() != null) ? group.getFavouriteSpace().getSpaceId() : null;
 
@@ -361,6 +253,20 @@ public class SearchBookingController {
         int groupSize = members.size();
 
         List<CoworkingSpace> allApproved = spaceRepository.findByApprovalStatus("Approved");
+
+        // FIX: AMENITY FILTER LOGIC
+        // If the user selected any amenities, filter out spaces that don't have ALL of them
+        if (amenityIds != null && !amenityIds.isEmpty()) {
+            allApproved = allApproved.stream()
+                    .filter(space -> {
+                        List<Integer> spaceAmenityIds = space.getAmenities().stream()
+                                .map(Amenity::getAmenityId)
+                                .collect(Collectors.toList());
+                        return spaceAmenityIds.containsAll(amenityIds);
+                    })
+                    .collect(Collectors.toList());
+        }
+
         List<Map<String, Object>> availableResults = new ArrayList<>();
 
         for (CoworkingSpace space : allApproved) {
@@ -424,7 +330,6 @@ public class SearchBookingController {
             }
         }
 
-        // FIX: Advanced Sorting - Favorite Space gets index 0, everything else sorts by fairness
         availableResults.sort((m1, m2) -> {
             Integer id1 = ((CoworkingSpace) m1.get("space")).getSpaceId();
             Integer id2 = ((CoworkingSpace) m2.get("space")).getSpaceId();
@@ -443,7 +348,7 @@ public class SearchBookingController {
         model.addAttribute("endDT", endDT);
         model.addAttribute("type", type);
         model.addAttribute("members", members);
-        model.addAttribute("favSpaceId", favSpaceId); // Pass fav ID to frontend
+        model.addAttribute("favSpaceId", favSpaceId);
 
         return "search/map-view";
     }
