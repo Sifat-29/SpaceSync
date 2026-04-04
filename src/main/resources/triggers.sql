@@ -74,3 +74,33 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+-- TRIGGER 6: Enforce Operational Hours
+-- Purpose: Prevents bookings outside the vendor's opening and closing times.
+-- ==============================================================================
+
+DROP TRIGGER IF EXISTS enforce_operating_hours;
+
+DELIMITER //
+
+CREATE TRIGGER enforce_operating_hours
+BEFORE INSERT ON Booking
+FOR EACH ROW
+BEGIN
+    DECLARE open_time TIME;
+    DECLARE close_time TIME;
+    
+    -- Fetch the operating hours of the selected space
+    SELECT Opening_Time, Closing_Time INTO open_time, close_time
+    FROM Coworking_Space 
+    WHERE Space_ID = NEW.Space_ID;
+    
+    -- Check if the requested times fall outside the operating hours
+    IF open_time IS NOT NULL AND close_time IS NOT NULL THEN
+        IF TIME(NEW.Start_Time) < open_time OR TIME(NEW.End_Time) > close_time THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Error: Booking falls outside the space operating hours.';
+        END IF;
+    END IF;
+END //
+
+DELIMITER ;

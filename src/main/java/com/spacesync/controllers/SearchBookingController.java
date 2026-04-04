@@ -270,6 +270,16 @@ public class SearchBookingController {
         List<Map<String, Object>> availableResults = new ArrayList<>();
 
         for (CoworkingSpace space : allApproved) {
+            LocalTime requestedStart = startDT.toLocalTime();
+            LocalTime requestedEnd = endDT.toLocalTime();
+            
+            if (space.getOpeningTime() != null && space.getClosingTime() != null) {
+                // If the booking starts before opening or ends after closing, SKIP this space!
+                if (requestedStart.isBefore(space.getOpeningTime()) || requestedEnd.isAfter(space.getClosingTime())) {
+                    continue; 
+                }
+            }
+            
             List<Map<String, Object>> inventoryList = new ArrayList<>();
 
             if ("ROOM".equals(type)) {
