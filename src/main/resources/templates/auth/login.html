@@ -24,7 +24,7 @@
                             <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
                             <label for="password">Password</label>
                             <button type="button" class="btn position-absolute top-50 end-0 translate-middle-y me-2 bg-transparent border-0" id="togglePassword" style="z-index: 5;">
-                                👁️
+                                Show
                             </button>
                         </div>
 
@@ -48,10 +48,10 @@
         const passwordInput = document.getElementById('password');
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            this.textContent = '🙈';
+            this.textContent = 'Hide';
         } else {
             passwordInput.type = 'password';
-            this.textContent = '👁️';
+            this.textContent = 'Show';
         }
     });
 </script>

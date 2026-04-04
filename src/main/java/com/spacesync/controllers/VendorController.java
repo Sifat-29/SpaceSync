@@ -121,7 +121,7 @@
 //    }
 //}
 package com.spacesync.controllers;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.spacesync.models.*;
 import com.spacesync.repositories.*;
 import jakarta.servlet.http.HttpSession;
@@ -129,6 +129,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -214,13 +215,26 @@ public class VendorController {
     }
 
     @PostMapping("/space/delete/{id}")
-    public String vendorDeleteSpace(@PathVariable Integer id, HttpSession session) {
-        CoworkingSpace space = spaceRepository.findById(id).orElseThrow();
-        if (space.getVendor().getVendorId().equals(session.getAttribute("userId"))) {
-            spaceRepository.deleteById(id);
+        public String vendorDeleteSpace(@PathVariable Integer id, HttpSession session, RedirectAttributes redirectAttributes) {
+            CoworkingSpace space = spaceRepository.findById(id).orElseThrow();
+            
+            // Security check: ensure the logged-in vendor actually owns this space
+            if (space.getVendor().getVendorId().equals(session.getAttribute("userId"))) {
+                try {
+                    // Attempt to delete the space
+                    spaceRepository.deleteById(id);
+                    redirectAttributes.addFlashAttribute("successMessage", "Listing removed successfully.");
+                } catch (Exception e) {
+                    // If it fails (like having active bookings), catch the error gracefully
+                    redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete: There are active bookings for this space.");
+                }
+            } else {
+                // If they don't own the space, don't let them delete it
+                redirectAttributes.addFlashAttribute("errorMessage", "You do not have permission to delete this space.");
+            }
+            
+            return "redirect:/vendor/dashboard";
         }
-        return "redirect:/vendor/dashboard?deleted=true";
-    }
 
     @GetMapping("/space/edit/{id}")
     public String editSpace(@PathVariable Integer id, Model model) {
