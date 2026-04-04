@@ -67,16 +67,14 @@
                         <input type="hidden" name="start" th:value="${#temporals.format(startDT, 'yyyy-MM-dd''T''HH:mm:ss')}">
                         <input type="hidden" name="end" th:value="${#temporals.format(endDT, 'yyyy-MM-dd''T''HH:mm:ss')}">
 
-                        <label class="small fw-bold">Select Option:</label>
-                        <select name="invId" class="form-select mb-3" required
-                                th:onchange="'updatePrice(this, \'priceInput' + ${res.space.spaceId} + '\')'">
-                            <option th:each="inv : ${res.inventory}"
-                                    th:value="${inv.id}"
-                                    th:data-price="${inv.totalPrice}"
-                                    th:text="${inv.name} + ' - Total: ₹' + ${inv.totalPrice}"></option>
-                        </select>
+                        <div class="mb-3 p-2 bg-light border rounded text-center">
+                            <span class="small fw-bold text-muted text-uppercase">Total Price</span><br>
+                            <span class="fs-5 fw-bold text-success" th:text="'₹' + ${res.inventory[0].totalPrice}"></span>
+                        </div>
 
-                        <input type="hidden" name="amount" th:id="'priceInput' + ${res.space.spaceId}" th:value="${res.inventory[0].totalPrice}">
+                        <input type="hidden" name="invId" th:value="${res.inventory[0].id}">
+                        <input type="hidden" name="amount" th:value="${res.inventory[0].totalPrice}">
+
                         <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">Secure Booking</button>
                     </form>
 
@@ -116,11 +114,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script th:inline="javascript">
-    function updatePrice(selectElement, inputId) {
-        const price = selectElement.options[selectElement.selectedIndex].getAttribute('data-price');
-        document.getElementById(inputId).value = price;
-    }
-
+    // The updatePrice function has been removed since the dropdown is gone!
     var map = L.map('map').setView([28.61, 77.20], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     var results = /*[[${results}]]*/ [];

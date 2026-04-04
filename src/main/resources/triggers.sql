@@ -13,7 +13,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- 2. Log Status Changes (Critical for the new 'Cancel' feature)
+-- 2. Log Status Changes
 DROP TRIGGER IF EXISTS after_booking_update;
 DELIMITER //
 CREATE TRIGGER after_booking_update

@@ -25,10 +25,10 @@
                 <div class="card-body">
                     <h5 class="card-title text-dark fw-bold" th:text="${b.space.name}">Space Name</h5>
                     <p class="mb-1 text-muted">
-                        📅 <span th:text="${#temporals.format(b.startTime, 'dd MMM yyyy')}"></span>
+                         <span th:text="${#temporals.format(b.startTime, 'dd MMM yyyy')}"></span>
                     </p>
                     <p class="mb-3 text-muted">
-                        ⏰ <span th:text="${#temporals.format(b.startTime, 'HH:mm')}"></span> -
+                         <span th:text="${#temporals.format(b.startTime, 'HH:mm')}"></span> -
                         <span th:text="${#temporals.format(b.endTime, 'HH:mm')}"></span>
                     </p>
 
@@ -36,7 +36,7 @@
                         <form th:action="@{/bookings/{id}/cancel(id=${b.bookingId})}" method="post">
                             <button type="submit" class="btn btn-outline-danger btn-sm w-100"
                                     onclick="return confirm('WARNING: Cancelling this booking will be recorded in the Audit Log. Proceed?')">
-                                ❌ Cancel Booking
+                                 Cancel Booking
                             </button>
                         </form>
                     </div>

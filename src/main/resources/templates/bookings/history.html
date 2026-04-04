@@ -4,7 +4,7 @@
 <body class="bg-light">
 <div th:replace="~{fragments/components :: navbar}"></div>
 <div class="container mt-5">
-    <h2 class="fw-bold mb-4">📜 Booking History</h2>
+    <h2 class="fw-bold mb-4"> Booking History</h2>
     <div th:if="${param.reviewed}" class="alert alert-success">Thank you for your feedback!</div>
 
     <div th:each="b : ${bookings}" class="card shadow-sm mb-3">
