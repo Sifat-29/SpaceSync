@@ -119,13 +119,20 @@ public class SearchBookingController {
                 List<Map<String, Object>> memberDists = new ArrayList<>();
                 List<Double> distVals = new ArrayList<>();
                 for (User u : members) {
-                    double d = calculateHaversine(
-                            u.getLatitude() != null ? u.getLatitude().doubleValue() : 0.0,
-                            u.getLongitude() != null ? u.getLongitude().doubleValue() : 0.0,
-                            space.getLatitude() != null ? space.getLatitude().doubleValue() : 0.0,
-                            space.getLongitude() != null ? space.getLongitude().doubleValue() : 0.0);
-                    memberDists.add(Map.of("name", u.getName(), "dist", d));
-                    distVals.add(d);
+                    // FIX: Prevent Null Island calculations
+                    if (u.getLatitude() != null && u.getLongitude() != null && 
+                        space.getLatitude() != null && space.getLongitude() != null) {
+                        
+                        double d = calculateHaversine(
+                                u.getLatitude().doubleValue(),
+                                u.getLongitude().doubleValue(),
+                                space.getLatitude().doubleValue(),
+                                space.getLongitude().doubleValue());
+                        memberDists.add(Map.of("name", u.getName(), "dist", d));
+                        distVals.add(d);
+                    } else {
+                        memberDists.add(Map.of("name", u.getName(), "dist", "Unknown"));
+                    }
                 }
                 res.put("memberDistances", memberDists);
                 res.put("fairnessScore", calculateFairnessScore(distVals));
@@ -168,7 +175,9 @@ public class SearchBookingController {
 
     private boolean isRoomAvailable(MeetingRoom r, LocalDateTime start, LocalDateTime end) {
         return bookingRepository.findAll().stream()
-                .noneMatch(b -> b.getBookedRoomId() != null && b.getBookedRoomId().equals(r.getRoomId()) &&
+                .noneMatch(b -> b.getBookedRoomId() != null && 
+                        b.getBookedRoomId().equals(r.getRoomId()) &&
+                        b.getSpace() != null && b.getSpace().getSpaceId().equals(r.getSpaceId()) && // FIX: Space ID check
                         "Confirmed".equals(b.getStatus()) &&
                         b.getStartTime() != null && b.getEndTime() != null &&
                         b.getStartTime().isBefore(end) && b.getEndTime().isAfter(start));
@@ -176,7 +185,10 @@ public class SearchBookingController {
 
     private boolean isDeskAreaAvailable(OpenDeskArea d, LocalDateTime start, LocalDateTime end, int size) {
         long bookedInWindow = bookingRepository.findAll().stream()
-                .filter(b -> b.getBookedAreaId() != null && b.getBookedAreaId().equals(d.getAreaId()) && "Confirmed".equals(b.getStatus()))
+                .filter(b -> b.getBookedAreaId() != null && 
+                        b.getBookedAreaId().equals(d.getAreaId()) && 
+                        b.getSpace() != null && b.getSpace().getSpaceId().equals(d.getSpaceId()) && // FIX: Space ID check
+                        "Confirmed".equals(b.getStatus()))
                 .filter(b -> b.getStartTime() != null && b.getEndTime() != null && b.getStartTime().isBefore(end) && b.getEndTime().isAfter(start)).count();
         return d.getTotalSeats() != null && (d.getTotalSeats() - (bookedInWindow * size)) >= size;
     }
@@ -189,11 +201,11 @@ public class SearchBookingController {
     }
 
     private double calculateFairnessScore(List<Double> list) {
-        if (list == null || list.isEmpty()) return 0.0;
+        if (list == null || list.isEmpty()) return 100.0; // FIX: Handle empty lists smoothly
         double mean = list.stream().mapToDouble(d -> d).average().orElse(0.0);
         double sum = list.stream().mapToDouble(d -> Math.pow(d - mean, 2)).sum();
         double stdDev = Math.sqrt(sum / list.size());
-        return Math.max(0.0, 100.0 - (stdDev * 10.0));
+        return Math.max(0.0, 100.0 - (stdDev * 2.0)); // FIX: Softened math
     }
 
     @PostMapping("/book")
@@ -207,16 +219,26 @@ public class SearchBookingController {
             RedirectAttributes redirectAttributes, HttpSession session) {
         
         try {
+            LocalDateTime startDT = LocalDateTime.parse(start);
+            LocalDateTime endDT = LocalDateTime.parse(end);
+
             if ("ROOM".equals(type)) {
-                roomRepository.findByIdForUpdate(spaceId, invId)
+                MeetingRoom room = roomRepository.findByIdForUpdate(spaceId, invId)
                     .orElseThrow(() -> new RuntimeException("Room not found!"));
+
+                // FIX: Re-check availability AFTER acquiring the lock!
+                if (!isRoomAvailable(room, startDT, endDT)) {
+                    throw new RuntimeException("Room was just booked by another user while processing!");
+                }
+            } else {
+                // If you later add pessimistic locking for desks, you would re-check isDeskAreaAvailable here too.
             }
 
             Booking b = new Booking();
             b.setGroup(teamGroupRepository.getReferenceById(groupId));
             b.setSpace(spaceRepository.getReferenceById(spaceId));
-            b.setStartTime(LocalDateTime.parse(start));
-            b.setEndTime(LocalDateTime.parse(end));
+            b.setStartTime(startDT);
+            b.setEndTime(endDT);
             b.setStatus("Confirmed");
 
             if ("ROOM".equals(type)) b.setBookedRoomId(invId); 
@@ -244,7 +266,6 @@ public class SearchBookingController {
             return "redirect:/bookings/active";
 
         } catch (Exception e) {
-            // FIX: This forces Spring to actually rollback the database even though we caught the exception!
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             
             redirectAttributes.addFlashAttribute("errorMsg", "Transaction Rolled Back! Reason: " + e.getMessage());
