@@ -83,6 +83,18 @@ public class SearchBookingController {
         List<Map<String, Object>> availableResults = new ArrayList<>();
 
         for (CoworkingSpace space : allApproved) {
+            if ("ROOM".equals(type)) {
+                LocalTime reqStart = startDT.toLocalTime();
+                LocalTime reqEnd = endDT.toLocalTime();
+                LocalTime spaceOpenTime = space.getOpeningTime();
+                LocalTime spaceCloseTime = space.getClosingTime();
+                if (spaceOpenTime != null && spaceCloseTime != null) {
+                    if (reqStart.isBefore(spaceOpenTime) || reqEnd.isAfter(spaceCloseTime)) {
+                        continue;
+                    }
+                }
+            }
+
             List<Map<String, Object>> inventoryList = new ArrayList<>();
 
             if ("ROOM".equals(type)) {
@@ -120,9 +132,9 @@ public class SearchBookingController {
                 List<Double> distVals = new ArrayList<>();
                 for (User u : members) {
                     // FIX: Prevent Null Island calculations
-                    if (u.getLatitude() != null && u.getLongitude() != null && 
-                        space.getLatitude() != null && space.getLongitude() != null) {
-                        
+                    if (u.getLatitude() != null && u.getLongitude() != null &&
+                            space.getLatitude() != null && space.getLongitude() != null) {
+
                         double d = calculateHaversine(
                                 u.getLatitude().doubleValue(),
                                 u.getLongitude().doubleValue(),
@@ -175,7 +187,7 @@ public class SearchBookingController {
 
     private boolean isRoomAvailable(MeetingRoom r, LocalDateTime start, LocalDateTime end) {
         return bookingRepository.findAll().stream()
-                .noneMatch(b -> b.getBookedRoomId() != null && 
+                .noneMatch(b -> b.getBookedRoomId() != null &&
                         b.getBookedRoomId().equals(r.getRoomId()) &&
                         b.getSpace() != null && b.getSpace().getSpaceId().equals(r.getSpaceId()) && // FIX: Space ID check
                         "Confirmed".equals(b.getStatus()) &&
@@ -185,8 +197,8 @@ public class SearchBookingController {
 
     private boolean isDeskAreaAvailable(OpenDeskArea d, LocalDateTime start, LocalDateTime end, int size) {
         long bookedInWindow = bookingRepository.findAll().stream()
-                .filter(b -> b.getBookedAreaId() != null && 
-                        b.getBookedAreaId().equals(d.getAreaId()) && 
+                .filter(b -> b.getBookedAreaId() != null &&
+                        b.getBookedAreaId().equals(d.getAreaId()) &&
                         b.getSpace() != null && b.getSpace().getSpaceId().equals(d.getSpaceId()) && // FIX: Space ID check
                         "Confirmed".equals(b.getStatus()))
                 .filter(b -> b.getStartTime() != null && b.getEndTime() != null && b.getStartTime().isBefore(end) && b.getEndTime().isAfter(start)).count();
@@ -209,31 +221,28 @@ public class SearchBookingController {
     }
 
     @PostMapping("/book")
-    @Transactional(rollbackFor = Exception.class) 
+    @Transactional(rollbackFor = Exception.class)
     public String book(
             @RequestParam Integer groupId, @RequestParam Integer spaceId, @RequestParam Integer invId,
             @RequestParam String type, @RequestParam String start, @RequestParam String end,
             @RequestParam BigDecimal amount,
-            @RequestParam(required = false) boolean simulateError, 
+            @RequestParam(required = false) boolean simulateError,
             @RequestParam(required = false) boolean simulateDelay,
             RedirectAttributes redirectAttributes, HttpSession session) {
-        
+
         try {
             LocalDateTime startDT = LocalDateTime.parse(start);
             LocalDateTime endDT = LocalDateTime.parse(end);
 
             if ("ROOM".equals(type)) {
                 MeetingRoom room = roomRepository.findByIdForUpdate(spaceId, invId)
-                    .orElseThrow(() -> new RuntimeException("Room not found!"));
+                        .orElseThrow(() -> new RuntimeException("Room not found!"));
 
                 // FIX: Re-check availability AFTER acquiring the lock!
                 if (!isRoomAvailable(room, startDT, endDT)) {
                     throw new RuntimeException("Room was just booked by another user while processing!");
                 }
-            } else {
-                // If you later add pessimistic locking for desks, you would re-check isDeskAreaAvailable here too.
             }
-
             Booking b = new Booking();
             b.setGroup(teamGroupRepository.getReferenceById(groupId));
             b.setSpace(spaceRepository.getReferenceById(spaceId));
@@ -241,14 +250,14 @@ public class SearchBookingController {
             b.setEndTime(endDT);
             b.setStatus("Confirmed");
 
-            if ("ROOM".equals(type)) b.setBookedRoomId(invId); 
+            if ("ROOM".equals(type)) b.setBookedRoomId(invId);
             else b.setBookedAreaId(invId);
 
             Booking saved = bookingRepository.save(b);
 
             if (simulateDelay) {
                 System.out.println("Holding Database Lock for 5 seconds...");
-                Thread.sleep(5000); 
+                Thread.sleep(5000);
             }
 
             if (simulateError) {
@@ -267,9 +276,9 @@ public class SearchBookingController {
 
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            
+            System.out.println("TRANSACTION FAILED & ROLLED BACK: " + e.getMessage());
             redirectAttributes.addFlashAttribute("errorMsg", "Transaction Rolled Back! Reason: " + e.getMessage());
-            
+
             if ("ROOM".equals(type)) {
                 String roomDate = start.substring(0, 10);
                 int startHour = LocalDateTime.parse(start).getHour();
