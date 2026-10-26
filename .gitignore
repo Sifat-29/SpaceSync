@@ -34,3 +34,11 @@ build/
 
 ### Custom Secrets ###
 application-dev.properties
+
+
+##
+.env
+*.env
+*.dump
+*.sql.gz
+backups/
